@@ -1,0 +1,51 @@
+
+const auth_link = "https://www.strava.com/oauth/token"
+
+
+async function getActivities(res) {
+    
+var token = res.access_token
+
+    const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${token}`
+  
+   const result = await fetch(activities_link)
+       const data = await result.json();
+       console.log(data)
+       
+        const latestRun = data[0].distance;
+        
+       
+
+      
+function formatDist(distance){
+    const newDistance = distance / 1000;
+    return newDistance;
+}
+document.querySelector('.header').innerHTML = formatDist(Math.floor(latestRun) )+ "km"
+      
+  }
+  
+
+
+
+
+  function reAuthorize() {
+      fetch(auth_link, {
+          method: 'post',
+          headers: {
+              'accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json'
+          },
+
+          body: JSON.stringify({
+              client_id: '48028',
+              client_secret: '37a64ae3e7da2af5b04e3845a7271207fedca47f',
+              refresh_token: '5cbc2c244495201beced41c94c386b51901225a8',
+              grant_type: 'refresh_token'
+          })
+
+      }).then(res => res.json())
+      .then(res =>getActivities(res))
+  }
+
+  reAuthorize()
