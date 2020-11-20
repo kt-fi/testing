@@ -1,51 +1,99 @@
+let bodyWidth;
+let gridWidth;
+let gridCount;
+let toScroll;
+let maxWidth;
+let firstScroll = true;
 
-const auth_link = "https://www.strava.com/oauth/token"
 
-
-async function getActivities(res) {
+const chooseWidth = () =>{
+      bodyWidth = $('body').width()
     
-var token = res.access_token
-
-    const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${token}`
-  
-   const result = await fetch(activities_link)
-       const data = await result.json();
-       console.log(data)
-       
-        const latestRun = data[0].distance;
-        
-       
-
-      
-function formatDist(distance){
-    const newDistance = distance / 1000;
-    return newDistance;
+    if(bodyWidth > 800){
+        gridCount = 4;
+        gridWidth = bodyWidth/gridCount;
+        toScroll = bodyWidth/gridCount;
+    }else if(bodyWidth <800 && bodyWidth>600){ 
+        gridCount = 3;
+        gridWidth = bodyWidth/gridCount;
+        toScroll = bodyWidth/gridCount;
+    }else if(bodyWidth<600 && bodyWidth>400){
+        gridCount = 2;
+        gridWidth = bodyWidth/gridCount;
+        toScroll = bodyWidth/gridCount;
+    }else{
+        gridCount = 1;
+        gridWidth = bodyWidth;
+        toScroll = bodyWidth
+    }
 }
-document.querySelector('.header').innerHTML = formatDist(Math.floor(latestRun) )+ "km"
-      
-  }
+
+
+
+// const createValues = (gridCount) => {
+//     gridWidth = bodyWidth/gridCount;
+//     toScroll = bodyWidth/gridCount;  
+//     gridCount = gridCount;
+// }
+
+// const chooseWidth = () =>{
+//   bodyWidth = $('body').width()
+
+// if(bodyWidth > 800){
+   
+//    createValues(4)
+// }else if(bodyWidth <800 && bodyWidth>600){ 
+
+//     createValues(3)
+// }else if(bodyWidth<600 && bodyWidth>400){
   
+//     createValues(2)
+// }else{
+//     gridCount = 1;
+//     gridWidth = bodyWidth;
+//     toScroll = bodyWidth
+// }
+// }
 
 
 
+(()=>{
+  chooseWidth()  
+})()
 
-  function reAuthorize() {
-      fetch(auth_link, {
-          method: 'post',
-          headers: {
-              'accept': 'application/json, text/plain, */*',
-              'Content-Type': 'application/json'
-          },
+$(window).resize(()=>{
+   chooseWidth()
+})
 
-          body: JSON.stringify({
-              client_id: '48028',
-              client_secret: '37a64ae3e7da2af5b04e3845a7271207fedca47f',
-              refresh_token: '5cbc2c244495201beced41c94c386b51901225a8',
-              grant_type: 'refresh_token'
-          })
 
-      }).then(res => res.json())
-      .then(res =>getActivities(res))
-  }
+$('.left').click(()=>{ 
+   maxWidth = $('.scroller__container').width()/gridCount * (7 - gridCount);
 
-  reAuthorize()
+    if(gridWidth >= maxWidth){
+        gridWidth = gridCount;
+    }
+
+    if(firstScroll){
+        gridWidth = gridWidth;
+        firstScroll = false;
+    }else{
+        gridWidth += toScroll
+    }
+    $('.scroller').animate({scrollLeft: gridWidth}, 800)
+    
+})
+
+
+$('.right').click(()=>{
+
+    gridWidth -= toScroll
+
+    if(gridWidth < 0){
+        gridWidth = 0;
+    }
+
+    $('.scroller').animate({scrollLeft: gridWidth}, 800)
+    
+    console.log(gridWidth)
+    console.log($('.scroller__container').width()/gridCount * (7 - gridCount))
+})
